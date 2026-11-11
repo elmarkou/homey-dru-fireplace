@@ -7,7 +7,7 @@ const Modbus = require('jsmodbus');
 // Dru Modbus TCP holding registers (Honeywell gateway, unit id 2)
 const UNIT_ID = 2;
 const REG_ACTION = 40200; // write-only command register
-const REG_FLAME = 40201; // flame height 0..100, reads 254 when off
+const REG_FLAME = 40201; // flame height 0..100, reads 254 when off or right after ignition
 const REG_STATUS = 40203; // bitmask, see STATUS
 const REG_FAULT = 40204;
 const REG_RSSI = 40206; // fireplace signal, dBm = -raw / 2
@@ -77,13 +77,23 @@ class DruDevice extends Homey.Device {
     this.homey.clearTimeout(this.armTimer);
     await this.setCapabilityValue('ignite_armed', false);
     await this.write(REG_ACTION, ACTION.IGNITE);
+    this.restoreFlame = true; // the fireplace starts at minimum flame, see poll()
+    // Poll every 2 s until the main burner is on, so the flame height is restored right away (max 60 s).
+    this.homey.clearInterval(this.fastTimer);
+    const until = Date.now() + 60000;
+    this.fastTimer = this.homey.setInterval(() => {
+      if (!this.restoreFlame || Date.now() > until) return this.homey.clearInterval(this.fastTimer);
+      this.poll();
+    }, 2000);
   }
 
   async turnOff() {
+    this.restoreFlame = false;
     await this.write(REG_ACTION, ACTION.OFF);
   }
 
   async fullOff() {
+    this.restoreFlame = false;
     await this.write(REG_ACTION, ACTION.FULL_OFF);
   }
 
@@ -131,6 +141,7 @@ class DruDevice extends Homey.Device {
 
   disconnect() {
     this.homey.clearInterval(this.pollTimer);
+    this.homey.clearInterval(this.fastTimer);
     this.homey.clearTimeout(this.reconnectTimer);
     this.homey.clearTimeout(this.settleTimer);
     const { socket } = this;
@@ -165,7 +176,8 @@ class DruDevice extends Homey.Device {
       const flame = await this.read(REG_FLAME);
       const rssi = await this.read(REG_RSSI);
 
-      if (status !== this.getCapabilityValue('status_raw')) this.log('Status', status, 'fault', fault);
+      if (status !== this.getCapabilityValue('status_raw') || flame !== this.lastFlame) this.log('Status', status, 'flame', flame, 'fault', fault);
+      this.lastFlame = flame;
       const main = Boolean(status & STATUS.MAIN);
       await this.setCapabilityValue('onoff', main);
       await this.setCapabilityValue('burner2', Boolean(status & STATUS.BURNER2));
@@ -175,7 +187,12 @@ class DruDevice extends Homey.Device {
       await this.setCapabilityValue('fault_code', fault);
       await this.setCapabilityValue('alarm_generic', fault !== 0);
       await this.setCapabilityValue('measure_temperature', temp / 10);
-      await this.setCapabilityValue('dim', flame > 100 ? 0 : flame / 100);
+      if (flame <= 100) await this.setCapabilityValue('dim', flame / 100); // 254 = no height set (e.g. just ignited), keep last value
+      if (this.restoreFlame && main) {
+        // After ignition the fireplace burns at minimum (reads 254): send the last flame height like the Dru app does.
+        this.restoreFlame = false;
+        if (flame > 100) await this.write(REG_FLAME, Math.round(this.getCapabilityValue('dim') * 100) || 100);
+      }
       await this.setCapabilityValue('signal_strength', Math.round(-rssi / 2));
     } catch (err) {
       this.error('Poll failed:', err.message || err.err || err);

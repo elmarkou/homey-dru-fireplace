@@ -1,6 +1,18 @@
 {
-  "1.0.6": {
+  "1.0.9": {
     "en": "First release: safe ignition with slide widget, two burners, Eco wave, completely off (pilot) and status information.",
     "nl": "Eerste release: veilig ontsteken met schuifwidget, twee branders, Eco wave, helemaal uit (waakvlam) en statusinformatie."
+  },
+  "1.0.10": {
+    "en": "Widget: shows igniting until the fire burns, plus flame height, burner 2 and Eco wave controls.",
+    "nl": "Widget: toont ontsteken tot de haard brandt, plus vlamhoogte, brander 2 en Eco wave."
+  },
+  "1.0.11": {
+    "en": "Widget: shows igniting until the fire burns, plus flame height, burner 2 and Eco wave controls. Flame height is restored faster after ignition.",
+    "nl": "Widget: toont ontsteken tot de haard brandt, plus vlamhoogte, brander 2 en Eco wave. Vlamhoogte wordt sneller hersteld na ontsteken."
+  },
+  "1.0.12": {
+    "en": "New widget design: glow when burning, vertical flame height slider, burner 2 and Eco wave buttons. Flame height is restored faster after ignition.",
+    "nl": "Nieuw widgetontwerp: gloed als de haard brandt, verticale vlamhoogteschuif, knoppen voor brander 2 en Eco wave. Vlamhoogte wordt sneller hersteld na ontsteken."
   }
 }

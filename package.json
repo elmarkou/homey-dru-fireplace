@@ -1,5 +1,5 @@
 {
-  "name": "nl.kouwenhoven.dru",
+  "name": "nl.drufireplace",
   "version": "1.0.0",
   "description": "Control a Dru gas fireplace from Homey over the Modbus gateway",
   "main": "app.js",

@@ -3,61 +3,100 @@
 <head>
 <meta charset="utf-8">
 <style>
-  :root { --fire: var(--homey-color-orange, #f97316); --track: 220px; --knob: 64px; }
-  body { margin: 0; font-family: var(--homey-font-family, -apple-system, system-ui, sans-serif); color: var(--homey-text-color, #111); }
-  .wrap { display: flex; gap: 16px; padding: 16px; height: 268px; box-sizing: border-box; }
+  :root { --fire: var(--homey-color-orange, #f97316); --text: var(--homey-text-color, #111); --track: 156px; --knob: 46px; }
+  body { margin: 0; font-family: var(--homey-font-family, -apple-system, system-ui, sans-serif); color: var(--text); }
+  .wrap { position: relative; display: flex; gap: 12px; padding: 12px; height: 180px; box-sizing: border-box; transition: background .6s; }
+  .wrap.on { background: radial-gradient(120% 100% at 90% 115%, color-mix(in srgb, var(--fire) 55%, transparent), transparent 75%); }
   .info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
-  .temp { font-size: 40px; line-height: 44px; font-weight: 600; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .temp { font-size: 32px; line-height: 36px; font-weight: 600; }
   .state { font-size: var(--homey-font-size-default, 16px); font-weight: 600; }
-  .meta { font-size: var(--homey-font-size-small, 14px); color: var(--homey-text-color-light, #888); line-height: 20px; }
-  .hint { font-size: var(--homey-font-size-small, 14px); color: var(--homey-text-color-light, #888); }
+  .on .state { color: var(--fire); }
+  .meta, .hint { font-size: var(--homey-font-size-small, 14px); color: var(--homey-text-color-light, #888); line-height: 20px; }
   .error { color: var(--homey-text-color-danger, #e11d48); }
+  svg.i { width: 18px; height: 18px; fill: currentColor; flex: none; }
 
-  .track { position: relative; width: 76px; height: var(--track); border-radius: 38px; flex: none;
-    background: color-mix(in srgb, var(--fire) 14%, transparent); overflow: hidden; touch-action: none; }
+  .power { width: 36px; height: 36px; border-radius: 50%; border: 0; padding: 0; flex: none; cursor: pointer;
+    background: color-mix(in srgb, var(--text) 10%, transparent); color: inherit; display: grid; place-items: center; }
+  .chips { display: flex; gap: 6px; }
+  .chip { flex: 1; min-width: 0; height: 40px; border-radius: 12px; border: 0; cursor: pointer; padding: 0 6px;
+    font: inherit; font-size: var(--homey-font-size-small, 14px); font-weight: 600; color: inherit;
+    background: color-mix(in srgb, var(--text) 8%, transparent);
+    display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; overflow: hidden; }
+  .chip span { overflow: hidden; text-overflow: ellipsis; }
+  .chip[aria-pressed="true"] { background: var(--fire); color: #fff; }
+
+  .col { position: relative; width: 60px; height: var(--track); border-radius: 18px; flex: none; overflow: hidden; touch-action: none; }
+  .track { background: color-mix(in srgb, var(--fire) 16%, transparent); }
   .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: var(--fire); opacity: .9; }
-  .knob { position: absolute; left: 6px; bottom: 6px; width: var(--knob); height: var(--knob); border-radius: 50%;
+  .knob { position: absolute; left: 7px; bottom: 7px; width: var(--knob); height: var(--knob); border-radius: 14px;
     background: var(--homey-background-color, #fff); box-shadow: 0 2px 8px rgba(0,0,0,.25);
-    display: grid; place-items: center; cursor: grab; touch-action: none; }
-  .knob svg { width: 30px; height: 30px; fill: var(--fire); }
+    display: grid; place-items: center; cursor: grab; touch-action: none; color: var(--fire); }
+  .knob svg.i { width: 24px; height: 24px; }
   .snap { transition: transform .25s ease-out; }
-  .arrow { position: absolute; top: 14px; left: 0; right: 0; text-align: center; color: var(--fire); font-size: 20px; }
+  .arrow { position: absolute; top: 10px; left: 0; right: 0; text-align: center; color: var(--fire); font-size: 14px; }
 
-  .off { width: 76px; height: var(--track); border-radius: 38px; border: 0; flex: none;
-    background: var(--fire); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  .level { background: color-mix(in srgb, var(--text) 12%, transparent); cursor: ns-resize; }
+  .level .fill { background: linear-gradient(#fdba74, var(--fire)); opacity: 1; transition: height .2s; }
+  .level.drag .fill { transition: none; }
+  .level .pct { position: absolute; top: 8px; left: 0; right: 0; text-align: center; font-weight: 700; font-size: 14px; z-index: 1; }
+  .level.busy .fill { height: 100% !important; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
   [hidden] { display: none !important; }
 </style>
 </head>
 <body>
-<div class="wrap">
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z"/></symbol>
+  <symbol id="i-burners" viewBox="0 0 24 24"><path d="M8 4c.7 3 4 4 4 9a4 4 0 0 1-8 0c0-2 1.3-3.4 2-4 0 1.4.7 2 1.3 2 0-2-.6-4 .7-7zM16 4c.7 3 4 4 4 9a4 4 0 0 1-8 0c0-2 1.3-3.4 2-4 0 1.4.7 2 1.3 2 0-2-.6-4 .7-7z"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 14c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3v2.5c-2.5 0-2.5-3-5-3s-2.5 3-5 3-2.5-3-5-3-2.5 3-5 3z"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M11 3h2v9h-2zM7.05 6.05l1.41 1.41A6 6 0 1 0 15.54 7.46l1.41-1.41A8 8 0 1 1 7.05 6.05z"/></symbol>
+</defs></svg>
+<div class="wrap" id="wrap">
   <div class="info">
-    <div>
-      <div class="temp" id="temp">--</div>
-      <div class="state" id="state"></div>
-      <div class="meta" id="meta"></div>
+    <div class="head">
+      <div>
+        <div class="temp" id="temp">--</div>
+        <div class="state" id="state"></div>
+        <div class="meta" id="meta"></div>
+      </div>
+      <button class="power" id="off" hidden><svg class="i"><use href="#i-power"/></svg></button>
+    </div>
+    <div class="chips" id="controls" hidden>
+      <button class="chip" id="burner2" aria-pressed="false"><svg class="i"><use href="#i-burners"/></svg><span id="burner2Label"></span></button>
+      <button class="chip" id="eco" aria-pressed="false"><svg class="i"><use href="#i-wave"/></svg><span>Eco wave</span></button>
     </div>
     <div class="hint" id="hint"></div>
   </div>
-  <div class="track" id="track">
+  <div class="col track" id="track">
     <div class="fill" id="fill"></div>
     <div class="arrow">&#x25B2;</div>
-    <div class="knob" id="knob">
-      <svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z"/></svg>
-    </div>
+    <div class="knob" id="knob"><svg class="i"><use href="#i-flame"/></svg></div>
   </div>
-  <button class="off" id="off" hidden></button>
+  <div class="col level" id="level" hidden>
+    <div class="pct" id="pct"></div>
+    <div class="fill" id="levelFill"></div>
+  </div>
 </div>
 
 <script>
 function onHomeyReady(Homey) {
   const HOLD_MS = 2000;
+  const IGNITE_MS = 60000; // show "igniting" until the fireplace reports burning, at most this long
   const $ = (id) => document.getElementById(id);
   const track = $('track'), knob = $('knob'), fill = $('fill'), off = $('off');
+  const level = $('level'), burner2 = $('burner2'), eco = $('eco');
   const t = (k) => Homey.__('widget.' + k);
-  let max = 0, dragY = null, pos = 0, holdStart = null, raf = null, sending = false;
+  const haptic = () => { try { Homey.hapticFeedback(); } catch (e) {} }; // only allowed right after a touch
+  let max = 0, dragY = null, pos = 0, holdStart = null, raf = null, igniteUntil = 0, sliding = false, state = {};
 
-  $('off').textContent = t('off');
+  off.title = t('off');
+  $('burner2Label').textContent = t('burner2Toggle');
   $('hint').textContent = t('slide');
+
+  function showError(e) { $('hint').hidden = false; $('hint').innerHTML = `<span class="error">${e.message || e}</span>`; }
+
+  // Slide to ignite
 
   function setPos(p) {
     pos = Math.max(0, Math.min(max, p));
@@ -70,7 +109,7 @@ function onHomeyReady(Homey) {
     fill.style.height = '0';
     knob.classList.add('snap');
     setPos(0);
-    $('hint').textContent = t('slide');
+    if (!igniteUntil) $('hint').textContent = t('slide');
   }
 
   function tick() {
@@ -82,19 +121,17 @@ function onHomeyReady(Homey) {
   }
 
   async function ignite() {
-    Homey.hapticFeedback();
+    igniteUntil = Date.now() + IGNITE_MS;
     reset();
-    sending = true;
-    $('hint').textContent = t('igniting');
+    render();
     try { await Homey.api('POST', '/ignite'); }
-    catch (e) { $('hint').innerHTML = `<span class="error">${e.message || e}</span>`; }
-    sending = false;
+    catch (e) { igniteUntil = 0; render(); showError(e); return; }
     refresh();
   }
 
   knob.addEventListener('pointerdown', (e) => {
-    if (sending) return;
-    max = track.clientHeight - knob.offsetHeight - 12;
+    if (igniteUntil) return;
+    max = track.clientHeight - knob.offsetHeight - 14;
     knob.classList.remove('snap');
     knob.setPointerCapture(e.pointerId);
     dragY = e.clientY + pos;
@@ -106,7 +143,7 @@ function onHomeyReady(Homey) {
     if (atTop && holdStart === null) {
       holdStart = Date.now();
       $('hint').textContent = t('hold');
-      Homey.hapticFeedback();
+      haptic();
       tick();
     } else if (!atTop && holdStart !== null) {
       cancelAnimationFrame(raf); holdStart = null; fill.style.height = '0';
@@ -115,28 +152,81 @@ function onHomeyReady(Homey) {
   });
   ['pointerup', 'pointercancel'].forEach((ev) => knob.addEventListener(ev, reset));
 
+  // Controls while burning
+
   off.addEventListener('click', async () => {
-    Homey.hapticFeedback();
+    haptic();
     off.disabled = true;
-    try { await Homey.api('POST', '/off'); } catch (e) { $('hint').textContent = e.message || e; }
+    igniteUntil = 0;
+    try { await Homey.api('POST', '/off'); } catch (e) { showError(e); }
     off.disabled = false;
     refresh();
   });
 
-  async function refresh() {
-    let s;
-    try { s = await Homey.api('GET', '/state'); }
-    catch (e) { $('state').textContent = e.message || e; return; }
+  async function set(body) {
+    haptic();
+    try { await Homey.api('POST', '/set', body); } catch (e) { showError(e); }
+    setTimeout(refresh, 3500); // the fireplace needs a moment before it reports the new state
+  }
+
+  function showLevel(v) {
+    $('levelFill').style.height = v + '%';
+    $('pct').textContent = v + '%';
+  }
+  function levelAt(e) {
+    const r = level.getBoundingClientRect();
+    return Math.round(Math.max(0, Math.min(1, (r.bottom - e.clientY) / r.height)) * 20) * 5;
+  }
+  level.addEventListener('pointerdown', (e) => {
+    if (!state.on) return;
+    sliding = true;
+    level.classList.add('drag');
+    level.setPointerCapture(e.pointerId);
+    showLevel(levelAt(e));
+  });
+  level.addEventListener('pointermove', (e) => { if (sliding) showLevel(levelAt(e)); });
+  level.addEventListener('pointerup', (e) => {
+    if (!sliding) return;
+    sliding = false;
+    level.classList.remove('drag');
+    state.flame = levelAt(e);
+    render();
+    set({ flame: state.flame });
+  });
+  level.addEventListener('pointercancel', () => { sliding = false; level.classList.remove('drag'); render(); });
+
+  burner2.addEventListener('click', () => { state.burner2 = !state.burner2; render(); set({ burner2: state.burner2 }); });
+  eco.addEventListener('click', () => { state.eco = !state.eco; render(); set({ eco: state.eco }); });
+
+  function render() {
+    const s = state;
+    if (s.on || (igniteUntil && Date.now() > igniteUntil)) igniteUntil = 0;
+    const igniting = Boolean(igniteUntil);
+    $('wrap').classList.toggle('on', Boolean(s.on));
     $('temp').textContent = s.temp == null ? '--' : `${s.temp.toFixed(1)}°`;
-    const busy = sending;
-    $('state').textContent = !s.available ? t('offline') : busy ? t('igniting') : s.on ? t('on') : s.pilot ? t('pilot') : t('offState');
-    $('meta').textContent = s.on
-      ? `${t('flame')} ${s.flame}%` + (s.burner2 ? ` · ${t('burner2')}` : '') + (s.eco ? ' · Eco wave' : '')
-      : (s.fault ? `${t('fault')} ${s.fault}` : '');
-    track.hidden = s.on || busy;
-    off.hidden = !(s.on || busy);
-    if (!track.hidden && !sending && dragY === null) $('hint').textContent = t('slide');
-    if (!off.hidden) $('hint').textContent = '';
+    $('state').textContent = s.available === false ? t('offline')
+      : igniting ? t('igniting')
+        : s.on ? t('on')
+          : s.pilot ? t('pilot') : t('offState');
+    $('meta').textContent = !s.on && s.fault ? `${t('fault')} ${s.fault}` : '';
+    track.hidden = s.on || igniting;
+    level.hidden = !(s.on || igniting);
+    level.classList.toggle('busy', igniting);
+    off.hidden = !(s.on || igniting);
+    $('controls').hidden = !s.on;
+    $('hint').hidden = Boolean(s.on);
+    if (!sliding) showLevel(s.flame || 0);
+    if (igniting) $('pct').textContent = '';
+    burner2.setAttribute('aria-pressed', String(Boolean(s.burner2)));
+    eco.setAttribute('aria-pressed', String(Boolean(s.eco)));
+    if (igniting) $('hint').textContent = '';
+    else if (!track.hidden && dragY === null) $('hint').textContent = t('slide');
+  }
+
+  async function refresh() {
+    try { state = await Homey.api('GET', '/state'); }
+    catch (e) { $('state').textContent = e.message || e; return; }
+    render();
   }
 
   refresh();

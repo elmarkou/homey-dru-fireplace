@@ -1,6 +1,6 @@
 {
-  "id": "nl.kouwenhoven.dru",
-  "version": "1.0.6",
+  "id": "nl.drufireplace",
+  "version": "1.0.12",
   "sdk": 3,
   "compatibility": ">=12.3.0",
   "platforms": [
@@ -8,8 +8,8 @@
   ],
   "brandColor": "#E8202F",
   "name": {
-    "en": "Dru",
-    "nl": "Dru"
+    "en": "Dru Fireplace",
+    "nl": "Dru Haard"
   },
   "description": {
     "en": "Light your gas fireplace safely with one slide",
@@ -49,10 +49,10 @@
       }
     ]
   },
-  "source": "https://github.com/elmarkou/nl.kouwenhoven.dru",
-  "support": "https://github.com/elmarkou/nl.kouwenhoven.dru/issues",
+  "source": "https://github.com/elmarkou/homey-dru-fireplace",
+  "support": "https://github.com/elmarkou/homey-dru-fireplace/issues",
   "bugs": {
-    "url": "https://github.com/elmarkou/nl.kouwenhoven.dru/issues"
+    "url": "https://github.com/elmarkou/homey-dru-fireplace/issues"
   },
   "images": {
     "small": "/assets/images/small.png",
@@ -535,7 +535,7 @@
         "en": "Fireplace",
         "nl": "Haard"
       },
-      "height": 300,
+      "height": 180,
       "api": {
         "state": {
           "method": "GET",
@@ -548,6 +548,10 @@
         "off": {
           "method": "POST",
           "path": "/off"
+        },
+        "set": {
+          "method": "POST",
+          "path": "/set"
         }
       }
     }

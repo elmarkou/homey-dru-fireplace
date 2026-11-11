@@ -51,6 +51,7 @@ tcp.listen(0, async () => {
   });
 
   await dev.listeners.dim(0.35);
+  dev.caps.dim = 0.35; // Homey stores the value after a successful listener
   assert.strictEqual(reg(40201), 35);
   await dev.listeners.burner2(false);
   assert.strictEqual(reg(40200), 4);
@@ -73,13 +74,17 @@ tcp.listen(0, async () => {
   assert.strictEqual(dev.caps.ignite_armed, false);
 
   // Polling stays quiet right after a command, then resumes.
+  // After ignition the fireplace reads flame 254 (minimum): the last height (35) is sent again.
   reg(40203, 4 | 512);
+  reg(40201, 254);
   await dev.poll();
   assert.strictEqual(dev.caps.status_raw, 14);
   await wait(3300);
   assert.strictEqual(dev.caps.status_raw, 516);
   assert.strictEqual(dev.caps.eco_wave, true);
   assert.strictEqual(dev.caps.pilot_flame, false);
+  assert.strictEqual(reg(40201), 35);
+  assert.strictEqual(dev.caps.dim, 0.35);
 
   await dev.onUninit();
   tcp.close();

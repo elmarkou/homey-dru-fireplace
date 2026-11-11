@@ -21,4 +21,10 @@ module.exports = {
   async off({ homey }) {
     await homey.app.fireplace.turnOff();
   },
+  async set({ homey, body }) {
+    const d = homey.app.fireplace;
+    if (typeof body.flame === 'number') await d.setFlame(Math.max(0, Math.min(100, Math.round(body.flame))));
+    if (typeof body.burner2 === 'boolean') await d.setBurner2(body.burner2);
+    if (typeof body.eco === 'boolean') await d.setEcoWave(body.eco);
+  },
 };
