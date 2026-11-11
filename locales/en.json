@@ -1,0 +1,32 @@
+{
+  "pair": {
+    "title": "Add Dru fireplace",
+    "nosettings": "Please fill in all the required fields.",
+    "intro": "Enter the IP address and port of your Dru gateway. The gateway accepts one connection at a time, so remove other integrations (such as older Homey Dru apps) first.",
+    "address": "IP address",
+    "port": "Port",
+    "polling": "Polling interval (s)",
+    "connect": "Connect",
+    "devicename": "Fireplace"
+  },
+  "error": {
+    "locked": "Unlock ignition first, or use the slide on the Fireplace widget",
+    "notOn": "Turn the fireplace on first",
+    "notConnected": "Dru gateway not connected",
+    "unreachable": "Cannot reach the Dru gateway at __address__:__port__",
+    "noDevice": "Add a Dru fireplace first"
+  },
+  "widget": {
+    "slide": "Slide up and hold 2 seconds to ignite",
+    "hold": "Keep holding...",
+    "igniting": "Igniting...",
+    "on": "Burning",
+    "pilot": "Pilot flame",
+    "offState": "Off",
+    "offline": "Gateway offline",
+    "off": "Off",
+    "flame": "Flame",
+    "burner2": "2 burners",
+    "fault": "Fault"
+  }
+}

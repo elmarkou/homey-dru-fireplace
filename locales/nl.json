@@ -1,0 +1,32 @@
+{
+  "pair": {
+    "title": "Dru haard toevoegen",
+    "nosettings": "Vul alle verplichte velden in.",
+    "intro": "Voer het IP adres en de poort van je Dru gateway in. De gateway accepteert één verbinding tegelijk, verwijder dus eerst andere koppelingen (zoals oudere Homey Dru apps).",
+    "address": "IP adres",
+    "port": "Poort",
+    "polling": "Polling interval (s)",
+    "connect": "Verbinden",
+    "devicename": "Haard"
+  },
+  "error": {
+    "locked": "Geef eerst het ontsteken vrij, of gebruik de schuif op de Haard widget",
+    "notOn": "Zet de haard eerst aan",
+    "notConnected": "Dru gateway niet verbonden",
+    "unreachable": "Dru gateway op __address__:__port__ niet bereikbaar",
+    "noDevice": "Voeg eerst een Dru haard toe"
+  },
+  "widget": {
+    "slide": "Schuif omhoog en houd 2 seconden vast om te ontsteken",
+    "hold": "Blijf vasthouden...",
+    "igniting": "Bezig met ontsteken...",
+    "on": "Brandt",
+    "pilot": "Waakvlam",
+    "offState": "Uit",
+    "offline": "Gateway offline",
+    "off": "Uit",
+    "flame": "Vlam",
+    "burner2": "2 branders",
+    "fault": "Storing"
+  }
+}

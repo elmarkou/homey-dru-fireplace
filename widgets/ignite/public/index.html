@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --fire: var(--homey-color-orange, #f97316); --track: 220px; --knob: 64px; }
+  body { margin: 0; font-family: var(--homey-font-family, -apple-system, system-ui, sans-serif); color: var(--homey-text-color, #111); }
+  .wrap { display: flex; gap: 16px; padding: 16px; height: 268px; box-sizing: border-box; }
+  .info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+  .temp { font-size: 40px; line-height: 44px; font-weight: 600; }
+  .state { font-size: var(--homey-font-size-default, 16px); font-weight: 600; }
+  .meta { font-size: var(--homey-font-size-small, 14px); color: var(--homey-text-color-light, #888); line-height: 20px; }
+  .hint { font-size: var(--homey-font-size-small, 14px); color: var(--homey-text-color-light, #888); }
+  .error { color: var(--homey-text-color-danger, #e11d48); }
+
+  .track { position: relative; width: 76px; height: var(--track); border-radius: 38px; flex: none;
+    background: color-mix(in srgb, var(--fire) 14%, transparent); overflow: hidden; touch-action: none; }
+  .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: var(--fire); opacity: .9; }
+  .knob { position: absolute; left: 6px; bottom: 6px; width: var(--knob); height: var(--knob); border-radius: 50%;
+    background: var(--homey-background-color, #fff); box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    display: grid; place-items: center; cursor: grab; touch-action: none; }
+  .knob svg { width: 30px; height: 30px; fill: var(--fire); }
+  .snap { transition: transform .25s ease-out; }
+  .arrow { position: absolute; top: 14px; left: 0; right: 0; text-align: center; color: var(--fire); font-size: 20px; }
+
+  .off { width: 76px; height: var(--track); border-radius: 38px; border: 0; flex: none;
+    background: var(--fire); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="info">
+    <div>
+      <div class="temp" id="temp">--</div>
+      <div class="state" id="state"></div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div class="hint" id="hint"></div>
+  </div>
+  <div class="track" id="track">
+    <div class="fill" id="fill"></div>
+    <div class="arrow">&#x25B2;</div>
+    <div class="knob" id="knob">
+      <svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-3-1-6 1-9z"/></svg>
+    </div>
+  </div>
+  <button class="off" id="off" hidden></button>
+</div>
+
+<script>
+function onHomeyReady(Homey) {
+  const HOLD_MS = 2000;
+  const $ = (id) => document.getElementById(id);
+  const track = $('track'), knob = $('knob'), fill = $('fill'), off = $('off');
+  const t = (k) => Homey.__('widget.' + k);
+  let max = 0, dragY = null, pos = 0, holdStart = null, raf = null, sending = false;
+
+  $('off').textContent = t('off');
+  $('hint').textContent = t('slide');
+
+  function setPos(p) {
+    pos = Math.max(0, Math.min(max, p));
+    knob.style.transform = `translateY(${-pos}px)`;
+  }
+
+  function reset() {
+    cancelAnimationFrame(raf);
+    holdStart = null; dragY = null;
+    fill.style.height = '0';
+    knob.classList.add('snap');
+    setPos(0);
+    $('hint').textContent = t('slide');
+  }
+
+  function tick() {
+    if (holdStart === null) return;
+    const p = Math.min(1, (Date.now() - holdStart) / HOLD_MS);
+    fill.style.height = (p * 100) + '%';
+    if (p >= 1) return ignite();
+    raf = requestAnimationFrame(tick);
+  }
+
+  async function ignite() {
+    Homey.hapticFeedback();
+    reset();
+    sending = true;
+    $('hint').textContent = t('igniting');
+    try { await Homey.api('POST', '/ignite'); }
+    catch (e) { $('hint').innerHTML = `<span class="error">${e.message || e}</span>`; }
+    sending = false;
+    refresh();
+  }
+
+  knob.addEventListener('pointerdown', (e) => {
+    if (sending) return;
+    max = track.clientHeight - knob.offsetHeight - 12;
+    knob.classList.remove('snap');
+    knob.setPointerCapture(e.pointerId);
+    dragY = e.clientY + pos;
+  });
+  knob.addEventListener('pointermove', (e) => {
+    if (dragY === null) return;
+    setPos(dragY - e.clientY);
+    const atTop = pos >= max - 2;
+    if (atTop && holdStart === null) {
+      holdStart = Date.now();
+      $('hint').textContent = t('hold');
+      Homey.hapticFeedback();
+      tick();
+    } else if (!atTop && holdStart !== null) {
+      cancelAnimationFrame(raf); holdStart = null; fill.style.height = '0';
+      $('hint').textContent = t('slide');
+    }
+  });
+  ['pointerup', 'pointercancel'].forEach((ev) => knob.addEventListener(ev, reset));
+
+  off.addEventListener('click', async () => {
+    Homey.hapticFeedback();
+    off.disabled = true;
+    try { await Homey.api('POST', '/off'); } catch (e) { $('hint').textContent = e.message || e; }
+    off.disabled = false;
+    refresh();
+  });
+
+  async function refresh() {
+    let s;
+    try { s = await Homey.api('GET', '/state'); }
+    catch (e) { $('state').textContent = e.message || e; return; }
+    $('temp').textContent = s.temp == null ? '--' : `${s.temp.toFixed(1)}°`;
+    const busy = sending;
+    $('state').textContent = !s.available ? t('offline') : busy ? t('igniting') : s.on ? t('on') : s.pilot ? t('pilot') : t('offState');
+    $('meta').textContent = s.on
+      ? `${t('flame')} ${s.flame}%` + (s.burner2 ? ` · ${t('burner2')}` : '') + (s.eco ? ' · Eco wave' : '')
+      : (s.fault ? `${t('fault')} ${s.fault}` : '');
+    track.hidden = s.on || busy;
+    off.hidden = !(s.on || busy);
+    if (!track.hidden && !sending && dragY === null) $('hint').textContent = t('slide');
+    if (!off.hidden) $('hint').textContent = '';
+  }
+
+  refresh();
+  setInterval(refresh, 5000);
+  Homey.ready();
+}
+</script>
+</body>
+</html>

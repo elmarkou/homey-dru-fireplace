@@ -1,0 +1,11 @@
+{
+  "name": "nl.kouwenhoven.dru",
+  "version": "1.0.0",
+  "description": "Control a Dru gas fireplace from Homey over the Modbus gateway",
+  "main": "app.js",
+  "license": "MIT",
+  "author": "Elmar Kouwenhoven",
+  "contributors": ["Arno van Beek (original com.amstelzone.dru)"],
+  "dependencies": { "jsmodbus": "3.1.4" },
+  "scripts": { "test": "node test/device.test.js" }
+}

@@ -1,0 +1,555 @@
+{
+  "id": "nl.kouwenhoven.dru",
+  "version": "1.0.6",
+  "sdk": 3,
+  "compatibility": ">=12.3.0",
+  "platforms": [
+    "local"
+  ],
+  "brandColor": "#E8202F",
+  "name": {
+    "en": "Dru",
+    "nl": "Dru"
+  },
+  "description": {
+    "en": "Light your gas fireplace safely with one slide",
+    "nl": "Je gashaard veilig ontsteken met één schuif"
+  },
+  "tags": {
+    "en": [
+      "Dru",
+      "Maestro",
+      "fireplace",
+      "gas fireplace",
+      "gas fire",
+      "eco wave",
+      "modbus"
+    ],
+    "nl": [
+      "Dru",
+      "Maestro",
+      "haard",
+      "gashaard",
+      "sfeerhaard",
+      "eco wave",
+      "modbus"
+    ]
+  },
+  "category": "climate",
+  "permissions": [],
+  "author": {
+    "name": "Elmar Kouwenhoven",
+    "email": "elmarkou@gmail.com"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Arno van Beek",
+        "email": "arno@arno.net"
+      }
+    ]
+  },
+  "source": "https://github.com/elmarkou/nl.kouwenhoven.dru",
+  "support": "https://github.com/elmarkou/nl.kouwenhoven.dru/issues",
+  "bugs": {
+    "url": "https://github.com/elmarkou/nl.kouwenhoven.dru/issues"
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "capabilities": {
+    "ignite_armed": {
+      "type": "boolean",
+      "getable": true,
+      "setable": true,
+      "title": {
+        "en": "Unlock ignition (15 s)",
+        "nl": "Ontsteken vrijgeven (15 s)"
+      },
+      "uiComponent": "toggle",
+      "uiQuickAction": false,
+      "insights": false,
+      "titleTrue": {
+        "en": "Unlock ignition (15 s) unlocked",
+        "nl": "Ontsteken vrijgeven (15 s) vrijgegeven"
+      },
+      "titleFalse": {
+        "en": "Unlock ignition (15 s) locked",
+        "nl": "Ontsteken vrijgeven (15 s) vergrendeld"
+      },
+      "insightsTitleTrue": {
+        "en": "Unlock ignition (15 s) unlocked",
+        "nl": "Ontsteken vrijgeven (15 s) vrijgegeven"
+      },
+      "insightsTitleFalse": {
+        "en": "Unlock ignition (15 s) locked",
+        "nl": "Ontsteken vrijgeven (15 s) vergrendeld"
+      }
+    },
+    "burner2": {
+      "type": "boolean",
+      "getable": true,
+      "setable": true,
+      "title": {
+        "en": "Second burner",
+        "nl": "Tweede brander"
+      },
+      "uiComponent": "toggle",
+      "uiQuickAction": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "Second burner on",
+        "nl": "Tweede brander aan"
+      },
+      "titleFalse": {
+        "en": "Second burner off",
+        "nl": "Tweede brander uit"
+      },
+      "insightsTitleTrue": {
+        "en": "Second burner on",
+        "nl": "Tweede brander aan"
+      },
+      "insightsTitleFalse": {
+        "en": "Second burner off",
+        "nl": "Tweede brander uit"
+      }
+    },
+    "eco_wave": {
+      "type": "boolean",
+      "getable": true,
+      "setable": true,
+      "title": {
+        "en": "Eco wave",
+        "nl": "Eco wave"
+      },
+      "uiComponent": "toggle",
+      "uiQuickAction": false,
+      "insights": true,
+      "titleTrue": {
+        "en": "Eco wave on",
+        "nl": "Eco wave aan"
+      },
+      "titleFalse": {
+        "en": "Eco wave off",
+        "nl": "Eco wave uit"
+      },
+      "insightsTitleTrue": {
+        "en": "Eco wave on",
+        "nl": "Eco wave aan"
+      },
+      "insightsTitleFalse": {
+        "en": "Eco wave off",
+        "nl": "Eco wave uit"
+      }
+    },
+    "pilot_flame": {
+      "type": "boolean",
+      "getable": true,
+      "setable": false,
+      "title": {
+        "en": "Pilot flame",
+        "nl": "Waakvlam"
+      },
+      "uiComponent": "sensor",
+      "insights": true,
+      "titleTrue": {
+        "en": "Pilot flame on",
+        "nl": "Waakvlam aan"
+      },
+      "titleFalse": {
+        "en": "Pilot flame off",
+        "nl": "Waakvlam uit"
+      },
+      "insightsTitleTrue": {
+        "en": "Pilot flame on",
+        "nl": "Waakvlam aan"
+      },
+      "insightsTitleFalse": {
+        "en": "Pilot flame off",
+        "nl": "Waakvlam uit"
+      }
+    },
+    "fault_code": {
+      "type": "number",
+      "getable": true,
+      "setable": false,
+      "title": {
+        "en": "Fault code",
+        "nl": "Storingscode"
+      },
+      "uiComponent": "sensor",
+      "decimals": 0,
+      "insights": true
+    },
+    "signal_strength": {
+      "type": "number",
+      "getable": true,
+      "setable": false,
+      "title": {
+        "en": "Signal fireplace",
+        "nl": "Signaal haard"
+      },
+      "units": {
+        "en": "dBm"
+      },
+      "decimals": 0,
+      "uiComponent": "sensor",
+      "insights": true
+    },
+    "status_raw": {
+      "type": "number",
+      "getable": true,
+      "setable": false,
+      "title": {
+        "en": "Raw status",
+        "nl": "Ruwe status"
+      },
+      "uiComponent": "sensor",
+      "decimals": 0,
+      "insights": true
+    }
+  },
+  "drivers": [
+    {
+      "id": "dru",
+      "name": {
+        "en": "Dru fireplace",
+        "nl": "Dru gashaard"
+      },
+      "class": "heater",
+      "capabilities": [
+        "onoff",
+        "ignite_armed",
+        "dim",
+        "burner2",
+        "eco_wave",
+        "button.full_off",
+        "measure_temperature",
+        "pilot_flame",
+        "alarm_generic",
+        "fault_code",
+        "signal_strength",
+        "status_raw"
+      ],
+      "capabilitiesOptions": {
+        "onoff": {
+          "uiQuickAction": true,
+          "title": {
+            "en": "Fireplace",
+            "nl": "Haard"
+          }
+        },
+        "dim": {
+          "title": {
+            "en": "Flame height",
+            "nl": "Vlamhoogte"
+          }
+        },
+        "button.full_off": {
+          "uiQuickAction": false,
+          "title": {
+            "en": "Completely off (incl. pilot)",
+            "nl": "Helemaal uit (incl. waakvlam)"
+          }
+        },
+        "alarm_generic": {
+          "title": {
+            "en": "Fault",
+            "nl": "Storing"
+          }
+        }
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/dru/assets/images/small.png",
+        "large": "/drivers/dru/assets/images/large.png",
+        "xlarge": "/drivers/dru/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "start"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Gateway",
+            "nl": "Gateway"
+          },
+          "children": [
+            {
+              "id": "address",
+              "type": "text",
+              "value": "0.0.0.0",
+              "label": {
+                "en": "IP address",
+                "nl": "IP adres"
+              }
+            },
+            {
+              "id": "port",
+              "type": "number",
+              "value": 502,
+              "step": 1,
+              "label": {
+                "en": "Port",
+                "nl": "Poort"
+              }
+            },
+            {
+              "id": "polling",
+              "type": "number",
+              "value": 10,
+              "step": 1,
+              "attr": {
+                "min": 5,
+                "max": 3600
+              },
+              "units": {
+                "en": "s"
+              },
+              "label": {
+                "en": "Polling interval",
+                "nl": "Polling interval"
+              },
+              "hint": {
+                "en": "The gateway accepts one client at a time. Keep this at 10 s or more so the Dru app keeps working.",
+                "nl": "De gateway accepteert maar één client tegelijk. Houd dit op 10 s of meer zodat de Dru app blijft werken."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "flow": {
+    "actions": [
+      {
+        "id": "ignite",
+        "title": {
+          "en": "Ignite the fireplace",
+          "nl": "Haard ontsteken"
+        },
+        "hint": {
+          "en": "Starts the fireplace without the unlock step. Only use in flows you trust.",
+          "nl": "Start de haard zonder vrijgeven. Gebruik alleen in flows die je vertrouwt."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          }
+        ]
+      },
+      {
+        "id": "turn_off",
+        "title": {
+          "en": "Turn off (pilot stays on)",
+          "nl": "Uitzetten (waakvlam blijft aan)"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          }
+        ]
+      },
+      {
+        "id": "full_off",
+        "title": {
+          "en": "Turn completely off",
+          "nl": "Helemaal uitzetten"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          }
+        ]
+      },
+      {
+        "id": "set_burner2",
+        "title": {
+          "en": "Set second burner",
+          "nl": "Tweede brander instellen"
+        },
+        "titleFormatted": {
+          "en": "Turn second burner [[state]]",
+          "nl": "Tweede brander [[state]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          },
+          {
+            "type": "dropdown",
+            "name": "state",
+            "values": [
+              {
+                "id": "on",
+                "label": {
+                  "en": "on",
+                  "nl": "aan"
+                }
+              },
+              {
+                "id": "off",
+                "label": {
+                  "en": "off",
+                  "nl": "uit"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set_eco_wave",
+        "title": {
+          "en": "Set eco wave",
+          "nl": "Eco wave instellen"
+        },
+        "titleFormatted": {
+          "en": "Turn eco wave [[state]]",
+          "nl": "Eco wave [[state]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          },
+          {
+            "type": "dropdown",
+            "name": "state",
+            "values": [
+              {
+                "id": "on",
+                "label": {
+                  "en": "on",
+                  "nl": "aan"
+                }
+              },
+              {
+                "id": "off",
+                "label": {
+                  "en": "off",
+                  "nl": "uit"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set_flame",
+        "title": {
+          "en": "Set flame height",
+          "nl": "Vlamhoogte instellen"
+        },
+        "titleFormatted": {
+          "en": "Set flame height to [[height]] %",
+          "nl": "Vlamhoogte op [[height]] %"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          },
+          {
+            "type": "range",
+            "name": "height",
+            "min": 0,
+            "max": 100,
+            "step": 5,
+            "label": "%",
+            "labelDecimals": 0
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "burner2_on",
+        "title": {
+          "en": "Second burner is !{{on|off}}",
+          "nl": "Tweede brander is !{{aan|uit}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          }
+        ]
+      },
+      {
+        "id": "eco_wave_on",
+        "title": {
+          "en": "Eco wave is !{{on|off}}",
+          "nl": "Eco wave is !{{aan|uit}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          }
+        ]
+      },
+      {
+        "id": "pilot_on",
+        "title": {
+          "en": "Pilot flame is !{{on|off}}",
+          "nl": "Waakvlam is !{{aan|uit}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          }
+        ]
+      }
+    ]
+  },
+  "widgets": {
+    "ignite": {
+      "id": "ignite",
+      "settings": [],
+      "name": {
+        "en": "Fireplace",
+        "nl": "Haard"
+      },
+      "height": 300,
+      "api": {
+        "state": {
+          "method": "GET",
+          "path": "/state"
+        },
+        "ignite": {
+          "method": "POST",
+          "path": "/ignite"
+        },
+        "off": {
+          "method": "POST",
+          "path": "/off"
+        }
+      }
+    }
+  }
+}
