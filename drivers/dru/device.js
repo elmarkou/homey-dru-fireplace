@@ -112,6 +112,23 @@ class DruDevice extends Homey.Device {
     await this.write(REG_ACTION, on ? ACTION.ECO_ON : ACTION.ECO_OFF);
   }
 
+  // Discovery: follow the gateway when it gets a new IP address. Older devices were paired by IP, so match that too.
+
+  onDiscoveryResult(result) {
+    return result.id === this.getData().id || result.address === this.getSetting('address');
+  }
+
+  async onDiscoveryAvailable(result) {
+    await this.onDiscoveryAddressChanged(result);
+  }
+
+  async onDiscoveryAddressChanged(result) {
+    if (result.address === this.getSetting('address')) return;
+    this.log('Gateway moved to', result.address);
+    await this.setSettings({ address: result.address });
+    this.connect(this.getSettings());
+  }
+
   // Connection
 
   connect({ address, port, polling }) {

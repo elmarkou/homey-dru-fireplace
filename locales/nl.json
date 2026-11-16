@@ -1,12 +1,5 @@
 {
   "pair": {
-    "title": "Dru haard toevoegen",
-    "nosettings": "Vul alle verplichte velden in.",
-    "intro": "Voer het IP adres en de poort van je Dru gateway in. De gateway accepteert één verbinding tegelijk, verwijder dus eerst andere koppelingen (zoals oudere Homey Dru apps).",
-    "address": "IP adres",
-    "port": "Poort",
-    "polling": "Polling interval (s)",
-    "connect": "Verbinden",
     "devicename": "Haard"
   },
   "error": {

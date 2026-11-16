@@ -1,6 +1,6 @@
 {
   "id": "nl.drufireplace",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "sdk": 3,
   "compatibility": ">=12.3.0",
   "platforms": [
@@ -211,6 +211,20 @@
       "insights": true
     }
   },
+  "discovery": {
+    "dru": {
+      "type": "mac",
+      "mac": {
+        "manufacturer": [
+          [
+            88,
+            243,
+            135
+          ]
+        ]
+      }
+    }
+  },
   "drivers": [
     {
       "id": "dru",
@@ -274,7 +288,15 @@
       },
       "pair": [
         {
-          "id": "start"
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
         }
       ],
       "settings": [
@@ -327,7 +349,8 @@
             }
           ]
         }
-      ]
+      ],
+      "discovery": "dru"
     }
   ],
   "flow": {

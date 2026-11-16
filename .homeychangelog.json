@@ -14,5 +14,9 @@
   "1.0.12": {
     "en": "New widget design: glow when burning, vertical flame height slider, burner 2 and Eco wave buttons. Flame height is restored faster after ignition.",
     "nl": "Nieuw widgetontwerp: gloed als de haard brandt, verticale vlamhoogteschuif, knoppen voor brander 2 en Eco wave. Vlamhoogte wordt sneller hersteld na ontsteken."
+  },
+  "1.0.13": {
+    "en": "The Dru gateway is now found automatically. New widget design with flame height, burner 2 and Eco wave.",
+    "nl": "De Dru gateway wordt nu automatisch gevonden. Nieuw widgetontwerp met vlamhoogte, brander 2 en Eco wave."
   }
 }

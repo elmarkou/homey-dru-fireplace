@@ -1,12 +1,5 @@
 {
   "pair": {
-    "title": "Add Dru fireplace",
-    "nosettings": "Please fill in all the required fields.",
-    "intro": "Enter the IP address and port of your Dru gateway. The gateway accepts one connection at a time, so remove other integrations (such as older Homey Dru apps) first.",
-    "address": "IP address",
-    "port": "Port",
-    "polling": "Polling interval (s)",
-    "connect": "Connect",
     "devicename": "Fireplace"
   },
   "error": {
