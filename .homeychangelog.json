@@ -18,5 +18,9 @@
   "1.0.13": {
     "en": "The Dru gateway is now found automatically. New widget design with flame height, burner 2 and Eco wave.",
     "nl": "De Dru gateway wordt nu automatisch gevonden. Nieuw widgetontwerp met vlamhoogte, brander 2 en Eco wave."
+  },
+  "1.0.14": {
+    "en": "Gentler on the gateway: polls every 30 s by default and waits longer between reconnects. New flow trigger when the gateway is unreachable, for example to power cycle it with a smart plug.",
+    "nl": "Rustiger voor de gateway: standaard elke 30 s uitlezen en langer wachten tussen herverbindingen. Nieuwe flowtrigger als de gateway niet bereikbaar is, bijvoorbeeld om hem via een slimme stekker te herstarten."
   }
 }

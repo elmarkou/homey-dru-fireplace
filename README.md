@@ -30,3 +30,7 @@ This also stops zone-wide "all on" commands, moods and voice assistants from lig
 - The gateway accepts one connection at a time. Use a polling interval of 10 seconds or more so the Dru app keeps working alongside Homey.
 
 Based on the original Homey app by Arno van Beek. This app is not made by or affiliated with Dru.
+
+## Gateway hangs
+
+The Dru gateway sometimes stops responding and only recovers after a power cycle (the Dru app has the same problem). The flow trigger "The gateway is unreachable" fires after 5 minutes without contact, then every 30 minutes. Put the gateway on a smart plug and make a flow: turn the plug off, wait 10 seconds, turn it on.

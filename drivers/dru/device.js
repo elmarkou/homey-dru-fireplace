@@ -25,7 +25,10 @@ const ACTION = {
 const STATUS = { PILOT: 2, MAIN: 4, BURNER2: 8, ECO_WAVE: 512 };
 
 const TIMEOUT_MS = 5000;
-const RECONNECT_MS = 30000;
+const RECONNECT_MS = 30000; // doubles per failed attempt up to RECONNECT_MAX_MS, so a struggling gateway is left alone
+const RECONNECT_MAX_MS = 300000;
+const OFFLINE_FIRST_MS = 5 * 60000; // gateway_unreachable trigger: first after 5 min, then every 30 min
+const OFFLINE_REPEAT_MS = 30 * 60000;
 const ARM_MS = 15000;
 const SETTLE_MS = 3000; // quiet time after a command before reading again
 
@@ -64,6 +67,7 @@ class DruDevice extends Homey.Device {
 
   async onUninit() {
     this.homey.clearTimeout(this.armTimer);
+    this.homey.clearTimeout(this.offlineTimer);
     this.disconnect();
   }
 
@@ -119,7 +123,8 @@ class DruDevice extends Homey.Device {
   }
 
   async onDiscoveryAvailable(result) {
-    await this.onDiscoveryAddressChanged(result);
+    if (result.address !== this.getSetting('address')) return this.onDiscoveryAddressChanged(result);
+    if (!this.getAvailable()) this.connect(this.getSettings()); // back after a power cycle, skip the backoff wait
   }
 
   async onDiscoveryAddressChanged(result) {
@@ -141,6 +146,9 @@ class DruDevice extends Homey.Device {
 
     socket.on('connect', () => {
       this.log('Connected');
+      this.reconnectDelay = RECONNECT_MS;
+      this.homey.clearTimeout(this.offlineTimer);
+      this.offlineTimer = null;
       this.setAvailable().catch(this.error);
       this.poll();
       this.pollTimer = this.homey.setInterval(() => this.poll(), polling * 1000);
@@ -150,10 +158,19 @@ class DruDevice extends Homey.Device {
       if (this.socket !== socket) return; // replaced by a newer connection
       this.setUnavailable(this.homey.__('error.unreachable', { address, port })).catch(this.error);
       this.disconnect();
-      this.reconnectTimer = this.homey.setTimeout(() => this.connect(this.getSettings()), RECONNECT_MS);
+      if (!this.offlineTimer) this.offlineTimer = this.homey.setTimeout(() => this.reportOffline(), OFFLINE_FIRST_MS);
+      const delay = this.reconnectDelay || RECONNECT_MS;
+      this.reconnectDelay = Math.min(delay * 2, RECONNECT_MAX_MS);
+      this.reconnectTimer = this.homey.setTimeout(() => this.connect(this.getSettings()), delay);
     });
 
     socket.connect({ host: address, port });
+  }
+
+  reportOffline() {
+    this.log('Gateway unreachable, firing trigger');
+    this.homey.flow.getDeviceTriggerCard('gateway_unreachable').trigger(this).catch(this.error);
+    this.offlineTimer = this.homey.setTimeout(() => this.reportOffline(), OFFLINE_REPEAT_MS);
   }
 
   disconnect() {

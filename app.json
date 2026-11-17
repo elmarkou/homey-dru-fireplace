@@ -1,6 +1,6 @@
 {
   "id": "nl.drufireplace",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "sdk": 3,
   "compatibility": ">=12.3.0",
   "platforms": [
@@ -329,7 +329,7 @@
             {
               "id": "polling",
               "type": "number",
-              "value": 10,
+              "value": 30,
               "step": 1,
               "attr": {
                 "min": 5,
@@ -539,6 +539,26 @@
         "title": {
           "en": "Pilot flame is !{{on|off}}",
           "nl": "Waakvlam is !{{aan|uit}}"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=dru"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "id": "gateway_unreachable",
+        "title": {
+          "en": "The gateway is unreachable",
+          "nl": "De gateway is niet bereikbaar"
+        },
+        "hint": {
+          "en": "Fires after 5 minutes without contact, then every 30 minutes while it stays offline. The gateway sometimes hangs and only recovers after a power cycle: use this to switch a smart plug off and on.",
+          "nl": "Gaat af na 5 minuten zonder contact, daarna elke 30 minuten zolang hij offline blijft. De gateway loopt soms vast en herstelt pas na stroom eraf en erop: gebruik dit om een slimme stekker uit en aan te zetten."
         },
         "args": [
           {
