@@ -22,5 +22,9 @@
   "1.0.14": {
     "en": "Gentler on the gateway: polls every 30 s by default and waits longer between reconnects. New flow trigger when the gateway is unreachable, for example to power cycle it with a smart plug.",
     "nl": "Rustiger voor de gateway: standaard elke 30 s uitlezen en langer wachten tussen herverbindingen. Nieuwe flowtrigger als de gateway niet bereikbaar is, bijvoorbeeld om hem via een slimme stekker te herstarten."
+  },
+  "1.0.15": {
+    "en": "Widget works on Android: press and hold the flame to ignite, tap the bar to set the flame height.",
+    "nl": "Widget werkt op Android: houd de vlam ingedrukt om te ontsteken, tik op de balk voor de vlamhoogte."
   }
 }

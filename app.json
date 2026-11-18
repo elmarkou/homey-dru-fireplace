@@ -1,6 +1,6 @@
 {
   "id": "nl.drufireplace",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "sdk": 3,
   "compatibility": ">=12.3.0",
   "platforms": [

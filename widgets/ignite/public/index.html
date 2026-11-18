@@ -92,7 +92,10 @@ function onHomeyReady(Homey) {
 
   off.title = t('off');
   $('burner2Label').textContent = t('burner2Toggle');
-  $('hint').textContent = t('slide');
+  // ponytail: Homey on Android swallows drags inside widgets (known, no fix from Athom), so there you press and hold instead.
+  const ANDROID = /Android/i.test(navigator.userAgent);
+  const idleHint = () => t(ANDROID ? 'pressHold' : 'slide');
+  $('hint').textContent = idleHint();
 
   function showError(e) { $('hint').hidden = false; $('hint').innerHTML = `<span class="error">${e.message || e}</span>`; }
 
@@ -109,13 +112,14 @@ function onHomeyReady(Homey) {
     fill.style.height = '0';
     knob.classList.add('snap');
     setPos(0);
-    if (!igniteUntil) $('hint').textContent = t('slide');
+    if (!igniteUntil) $('hint').textContent = idleHint();
   }
 
   function tick() {
     if (holdStart === null) return;
     const p = Math.min(1, (Date.now() - holdStart) / HOLD_MS);
     fill.style.height = (p * 100) + '%';
+    if (ANDROID) setPos(max * p);
     if (p >= 1) return ignite();
     raf = requestAnimationFrame(tick);
   }
@@ -134,10 +138,16 @@ function onHomeyReady(Homey) {
     max = track.clientHeight - knob.offsetHeight - 14;
     knob.classList.remove('snap');
     knob.setPointerCapture(e.pointerId);
+    if (ANDROID) {
+      holdStart = Date.now();
+      $('hint').textContent = t('hold');
+      haptic();
+      return tick();
+    }
     dragY = e.clientY + pos;
   });
   knob.addEventListener('pointermove', (e) => {
-    if (dragY === null) return;
+    if (ANDROID || dragY === null) return;
     setPos(dragY - e.clientY);
     const atTop = pos >= max - 2;
     if (atTop && holdStart === null) {
@@ -147,10 +157,14 @@ function onHomeyReady(Homey) {
       tick();
     } else if (!atTop && holdStart !== null) {
       cancelAnimationFrame(raf); holdStart = null; fill.style.height = '0';
-      $('hint').textContent = t('slide');
+      $('hint').textContent = idleHint();
     }
   });
-  ['pointerup', 'pointercancel'].forEach((ev) => knob.addEventListener(ev, reset));
+  ['pointerup', 'pointercancel', 'touchend', 'touchcancel'].forEach((ev) => knob.addEventListener(ev, () => { if (!igniteUntil) reset(); }));
+
+  // Android: the dashboard scrolls and cancels the drag unless the touch itself is claimed (touch-action alone is not enough there).
+  [knob, level].forEach((el) => ['touchstart', 'touchmove'].forEach((ev) =>
+    el.addEventListener(ev, (e) => e.preventDefault(), { passive: false })));
 
   // Controls while burning
 
@@ -184,16 +198,26 @@ function onHomeyReady(Homey) {
     level.setPointerCapture(e.pointerId);
     showLevel(levelAt(e));
   });
-  level.addEventListener('pointermove', (e) => { if (sliding) showLevel(levelAt(e)); });
-  level.addEventListener('pointerup', (e) => {
+  let commitTimer = null, pending = null;
+  function commitLevel() {
+    clearTimeout(commitTimer);
     if (!sliding) return;
     sliding = false;
     level.classList.remove('drag');
-    state.flame = levelAt(e);
+    state.flame = pending;
     render();
     set({ flame: state.flame });
-  });
-  level.addEventListener('pointercancel', () => { sliding = false; level.classList.remove('drag'); render(); });
+  }
+  function follow(e) {
+    pending = levelAt(e);
+    showLevel(pending);
+    clearTimeout(commitTimer);
+    commitTimer = setTimeout(commitLevel, 800); // Android may never send pointerup: commit once the finger rests
+  }
+  level.addEventListener('pointerdown', (e) => { if (sliding) follow(e); });
+  level.addEventListener('pointermove', (e) => { if (sliding) follow(e); });
+  level.addEventListener('pointerup', (e) => { if (sliding) { pending = levelAt(e); commitLevel(); } });
+  level.addEventListener('pointercancel', commitLevel); // keep what was shown, a tap on Android often ends in a cancel
 
   burner2.addEventListener('click', () => { state.burner2 = !state.burner2; render(); set({ burner2: state.burner2 }); });
   eco.addEventListener('click', () => { state.eco = !state.eco; render(); set({ eco: state.eco }); });

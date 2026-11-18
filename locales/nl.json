@@ -11,6 +11,7 @@
   },
   "widget": {
     "slide": "Schuif omhoog en houd 2 seconden vast om te ontsteken",
+    "pressHold": "Houd de vlam 2 seconden ingedrukt om te ontsteken",
     "hold": "Blijf vasthouden...",
     "igniting": "Bezig met ontsteken...",
     "on": "Brandt",
