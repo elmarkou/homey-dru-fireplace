@@ -26,5 +26,9 @@
   "1.0.15": {
     "en": "Widget works on Android: press and hold the flame to ignite, tap the bar to set the flame height.",
     "nl": "Widget werkt op Android: houd de vlam ingedrukt om te ontsteken, tik op de balk voor de vlamhoogte."
+  },
+  "1.0.16": {
+    "en": "Added a link to the Homey Community topic for questions and feedback.",
+    "nl": "Link toegevoegd naar het Homey Community-topic voor vragen en feedback."
   }
 }
